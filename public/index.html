@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAHEL SENTINEL | نظام المراقبة والكشف | Fondé par KHEDIM BENYAKHLEF dit BENY-JOE</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c8a84b;
+      --gold-light: #e8c96b;
+      --red: #c0392b;
+      --dark: #050a0e;
+      --darker: #020507;
+      --panel: rgba(8,20,30,0.95);
+      --border: rgba(200,168,75,0.3);
+      --text: #e8dcc8;
+      --cyan: #00d4ff;
+      --green: #00ff88;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--darker);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,168,75,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,168,75,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: gridMove 20s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes gridMove { 0%{background-position:0 0} 100%{background-position:50px 50px} }
+
+    /* Taskbar */
+    .taskbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: rgba(2,5,8,0.98);
+      border-bottom: 1px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 1000;
+      backdrop-filter: blur(20px);
+    }
+    .taskbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .taskbar-shield {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--gold), var(--red));
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      animation: shieldPulse 3s ease-in-out infinite;
+    }
+    @keyframes shieldPulse {
+      0%,100%{filter:drop-shadow(0 0 4px var(--gold))}
+      50%{filter:drop-shadow(0 0 12px var(--gold))}
+    }
+    .taskbar-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+    .taskbar-subtitle {
+      font-family: 'Noto Kufi Arabic', sans-serif;
+      font-size: 11px;
+      color: rgba(200,168,75,0.6);
+    }
+    .taskbar-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .taskbar-founder {
+      font-size: 10px;
+      color: rgba(200,168,75,0.5);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .taskbar-founder span { color: var(--gold); font-weight: 700; }
+    .taskbar-time {
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      color: var(--cyan);
+    }
+    .taskbar-status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--green);
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: blink 1s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px 40px;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .map-bg {
+      position: fixed;
+      inset: 0;
+      opacity: 0.06;
+      background:
+        radial-gradient(ellipse at 30% 40%, rgba(200,168,75,0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(192,57,43,0.3) 0%, transparent 50%);
+      z-index: 0;
+    }
+
+    .logo-container {
+      position: relative;
+      margin-bottom: 40px;
+    }
+    .logo-outer {
+      width: 160px; height: 160px;
+      border: 2px solid var(--gold);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, rgba(200,168,75,0.1), rgba(192,57,43,0.1));
+      position: relative;
+      animation: outerRotate 0s linear;
+      box-shadow: 0 0 40px rgba(200,168,75,0.2), inset 0 0 40px rgba(200,168,75,0.05);
+    }
+    .logo-inner {
+      font-size: 72px;
+      filter: drop-shadow(0 0 20px var(--gold));
+    }
+    .logo-ring {
+      position: absolute;
+      inset: -20px;
+      border: 1px solid rgba(200,168,75,0.2);
+      border-radius: 50%;
+      animation: spin 15s linear infinite;
+    }
+    .logo-ring::after {
+      content: '';
+      position: absolute;
+      top: -3px; left: 50%;
+      width: 6px; height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+    @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(192,57,43,0.2);
+      border: 1px solid var(--red);
+      color: #ff6b6b;
+      font-size: 11px;
+      letter-spacing: 4px;
+      padding: 5px 20px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(32px, 6vw, 72px);
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 8px;
+      line-height: 1.1;
+      text-shadow: 0 0 40px rgba(200,168,75,0.5);
+      margin-bottom: 10px;
+    }
+    .hero-title-ar {
+      font-family: 'Noto Kufi Arabic', sans-serif;
+      font-size: clamp(20px, 3vw, 36px);
+      color: rgba(200,168,75,0.7);
+      margin-bottom: 16px;
+      direction: rtl;
+    }
+    .hero-sub {
+      font-size: 18px;
+      color: rgba(232,220,200,0.6);
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+    }
+    .hero-sub-ar {
+      font-family: 'Noto Kufi Arabic', sans-serif;
+      font-size: 15px;
+      color: rgba(232,220,200,0.4);
+      direction: rtl;
+    }
+
+    .dedication {
+      margin: 30px 0;
+      padding: 20px 40px;
+      border: 1px solid rgba(200,168,75,0.2);
+      background: rgba(200,168,75,0.03);
+      position: relative;
+    }
+    .dedication::before {
+      content: '◆';
+      position: absolute;
+      top: -10px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--darker);
+      padding: 0 10px;
+      color: var(--gold);
+      font-size: 16px;
+    }
+    .dedication p { font-size: 13px; color: rgba(200,168,75,0.6); letter-spacing: 1px; }
+    .dedication strong { color: var(--gold); font-family: 'Orbitron', monospace; font-size: 14px; }
+
+    /* Stats bar */
+    .stats-row {
+      display: flex;
+      gap: 2px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .stat-box {
+      background: rgba(8,20,30,0.9);
+      border: 1px solid var(--border);
+      padding: 16px 24px;
+      min-width: 140px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .stat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .stat-label { font-size: 11px; color: rgba(200,168,75,0.5); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+    /* Threat grid */
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      letter-spacing: 5px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin: 40px 0 20px;
+      text-align: center;
+    }
+    .section-title::before, .section-title::after {
+      content: ' ══ ';
+      color: rgba(200,168,75,0.3);
+    }
+
+    .threats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 40px;
+    }
+    .threat-card {
+      background: rgba(8,18,28,0.9);
+      border: 1px solid rgba(200,168,75,0.15);
+      padding: 16px;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+    .threat-card:hover {
+      border-color: var(--gold);
+      background: rgba(200,168,75,0.08);
+      transform: translateY(-2px);
+    }
+    .threat-card .icon { font-size: 28px; margin-bottom: 8px; display: block; }
+    .threat-card .name { font-size: 12px; color: var(--text); letter-spacing: 1px; }
+    .threat-card .name-ar {
+      font-family: 'Noto Kufi Arabic', sans-serif;
+      font-size: 11px;
+      color: rgba(232,220,200,0.5);
+      direction: rtl;
+    }
+    .threat-card.priority-1::after {
+      content: 'CRITIQUE';
+      position: absolute;
+      top: 6px; right: 6px;
+      font-size: 8px;
+      font-family: 'Orbitron', monospace;
+      color: var(--red);
+      letter-spacing: 1px;
+    }
+
+    /* CTA */
+    .cta-container { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), #a07830);
+      color: var(--darker);
+      border: none;
+      padding: 16px 40px;
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(200,168,75,0.4); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--gold);
+      border: 1px solid var(--gold);
+      padding: 16px 40px;
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      letter-spacing: 3px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+    .btn-secondary:hover { background: rgba(200,168,75,0.1); }
+
+    /* Features */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      max-width: 1000px;
+      margin: 0 auto 60px;
+    }
+    .feature-item {
+      background: rgba(5,12,20,0.8);
+      border: 1px solid rgba(200,168,75,0.12);
+      padding: 20px;
+      border-left: 3px solid var(--gold);
+    }
+    .feature-item h3 { font-family: 'Orbitron', monospace; font-size: 12px; color: var(--gold); letter-spacing: 2px; margin-bottom: 8px; }
+    .feature-item p { font-size: 12px; color: rgba(232,220,200,0.5); line-height: 1.6; }
+
+    /* Footer */
+    .footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid rgba(200,168,75,0.15);
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .footer-founder {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      color: rgba(200,168,75,0.4);
+      letter-spacing: 3px;
+    }
+    .footer-founder span { color: var(--gold); }
+    .footer-copy { font-size: 10px; color: rgba(200,168,75,0.2); margin-top: 8px; }
+
+    /* Scan line effect */
+    .scan-line {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0.3;
+      animation: scanMove 8s linear infinite;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    @keyframes scanMove { 0%{top:0} 100%{top:100vh} }
+  </style>
+</head>
+<body>
+
+<div class="scan-line"></div>
+<div class="map-bg"></div>
+
+<!-- Taskbar -->
+<div class="taskbar">
+  <div class="taskbar-left">
+    <div class="taskbar-shield">🛡️</div>
+    <div>
+      <div class="taskbar-title">SAHEL SENTINEL</div>
+      <div class="taskbar-subtitle">نظام المراقبة والكشف متعدد المجالات</div>
+    </div>
+  </div>
+  <div class="taskbar-right">
+    <div class="taskbar-founder">Fondé par <span>BENY-JOE</span></div>
+    <div class="taskbar-status"><div class="status-dot"></div>SYSTÈME EN LIGNE</div>
+    <div class="taskbar-time" id="clock">--:--:--</div>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="logo-container">
+    <div class="logo-ring"></div>
+    <div class="logo-outer">
+      <div class="logo-inner">🛡️</div>
+    </div>
+  </div>
+
+  <div class="hero-badge">⬛ SYSTÈME CLASSIFIÉ — USAGE OFFICIEL UNIQUEMENT ⬛</div>
+
+  <h1 class="hero-title">SAHEL SENTINEL</h1>
+  <div class="hero-title-ar">حارس الساحل</div>
+  <div class="hero-sub">SYSTÈME DE SURVEILLANCE & DÉTECTION MULTIDOMAINE</div>
+  <div class="hero-sub-ar">نظام المراقبة والكشف متعدد المجالات — جمهورية تشاد والساحل</div>
+
+  <div class="dedication">
+    <p>Dédié au <strong>PEUPLE DU TCHAD & DU SAHEL</strong></p>
+    <p style="margin-top:8px;font-family:'Noto Kufi Arabic',sans-serif;direction:rtl">مُهدى إلى شعب تشاد وبلدان الساحل الأفريقي</p>
+    <p style="margin-top:12px">Fondé & Conçu par <strong>KHEDIM BENYAKHLEF dit BENY-JOE</strong></p>
+  </div>
+
+  <!-- Live stats -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-box"><div class="stat-num" id="stat-det">--</div><div class="stat-label">Détections</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-alert">--</div><div class="stat-label">Alertes Actives</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-assets">--</div><div class="stat-label">Actifs Opérationnels</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-zones">--</div><div class="stat-label">Zones Surveillées</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-today">--</div><div class="stat-label">Aujourd'hui</div></div>
+  </div>
+
+  <div class="section-title">Domaines de Détection | مجالات الكشف</div>
+
+  <!-- Threats grid -->
+  <div class="threats-grid">
+    <div class="threat-card priority-1"><span class="icon">💣</span><div class="name">TERRORISME</div><div class="name-ar">إرهاب</div></div>
+    <div class="threat-card priority-1"><span class="icon">💊</span><div class="name">NARCOTRAFIC</div><div class="name-ar">تهريب المخدرات</div></div>
+    <div class="threat-card priority-1"><span class="icon">👤</span><div class="name">TRAFIC HUMAIN</div><div class="name-ar">الاتجار بالبشر</div></div>
+    <div class="threat-card priority-1"><span class="icon">🔫</span><div class="name">TRAFIC D'ARMES</div><div class="name-ar">الاتجار بالأسلحة</div></div>
+    <div class="threat-card"><span class="icon">💰</span><div class="name">BLANCHIMENT</div><div class="name-ar">غسيل الأموال</div></div>
+    <div class="threat-card"><span class="icon">🦁</span><div class="name">TRAFIC ANIMAL</div><div class="name-ar">الاتجار بالحيوانات</div></div>
+    <div class="threat-card priority-1"><span class="icon">🦠</span><div class="name">ÉPIDÉMIE</div><div class="name-ar">وباء</div></div>
+    <div class="threat-card"><span class="icon">⚖️</span><div class="name">CORRUPTION JUD.</div><div class="name-ar">فساد قضائي</div></div>
+    <div class="threat-card"><span class="icon">📋</span><div class="name">CORRUPTION BUR.</div><div class="name-ar">فساد إداري</div></div>
+    <div class="threat-card"><span class="icon">📦</span><div class="name">CONTREBANDE</div><div class="name-ar">تهريب البضائع</div></div>
+    <div class="threat-card"><span class="icon">🕵️</span><div class="name">CLANDESTIN</div><div class="name-ar">نشاط سري</div></div>
+    <div class="threat-card"><span class="icon">💻</span><div class="name">CYBERMENACE</div><div class="name-ar">تهديد إلكتروني</div></div>
+  </div>
+
+  <div class="cta-container">
+    <a href="/dashboard" class="btn-primary">▶ ACCÉDER AU CENTRE DE COMMANDEMENT</a>
+    <a href="#features" class="btn-secondary">◈ CAPACITÉS DU SYSTÈME</a>
+  </div>
+
+  <div id="features" style="margin-top:60px;width:100%;max-width:1000px;">
+    <div class="section-title">Moyens de Détection | وسائل الاستشعار</div>
+    <div class="features-grid">
+      <div class="feature-item"><h3>🛰️ SATELLITE</h3><p>Couverture totale du territoire. Imagerie haute résolution. Suivi en temps réel.</p></div>
+      <div class="feature-item"><h3>🚁 DRONES UAV</h3><p>Patrouille autonome des zones frontalières. Transmission vidéo live. Capteurs thermiques.</p></div>
+      <div class="feature-item"><h3>📡 RADAR</h3><p>Détection tous types d'aéronefs et véhicules. Portée 200-400km. Alerte automatique.</p></div>
+      <div class="feature-item"><h3>🌡️ THERMIQUE</h3><p>Détection de présence humaine de nuit. Franchissement de frontières clandestins.</p></div>
+      <div class="feature-item"><h3>👂 ÉCOUTE TELECOM</h3><p>Analyse des communications suspectes. Détection de mots-clés. Géolocalisation.</p></div>
+      <div class="feature-item"><h3>🌐 RÉSEAUX SOCIAUX</h3><p>Surveillance des plateformes. Détection de recrutement terroriste. Analyse sémantique IA.</p></div>
+      <div class="feature-item"><h3>🕵️ RENSEIGNEMENT</h3><p>Sources humaines HUMINT. Croisement de données. Analyse prédictive.</p></div>
+      <div class="feature-item"><h3>🌍 INTERNATIONAL</h3><p>Coopération INTERPOL, UA, ONU. Partage de renseignements. Alerte transfrontalière.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-founder">
+    FONDÉ & CONÇU PAR <span>KHEDIM BENYAKHLEF dit BENY-JOE</span>
+  </div>
+  <div class="footer-founder" style="margin-top:6px;font-family:'Noto Kufi Arabic',sans-serif;direction:rtl">
+    تأسس وصُمِّم بواسطة <span>خديم بن يخلف المعروف بـ بيني جو</span>
+  </div>
+  <div class="footer-copy">SAHEL SENTINEL © 2025 — SYSTÈME DE SURVEILLANCE MULTIDOMAINE — TCHAD & SAHEL — USAGE OFFICIEL</div>
+</div>
+
+<script>
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toUTCString().slice(17,25) + ' UTC';
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Load stats
+  async function loadStats() {
+    try {
+      const r = await fetch('/api/stats');
+      const d = await r.json();
+      if (d.success) {
+        document.getElementById('stat-det').textContent = d.data.total_detections;
+        document.getElementById('stat-alert').textContent = d.data.active_alerts;
+        document.getElementById('stat-assets').textContent = d.data.active_assets;
+        document.getElementById('stat-zones').textContent = d.data.threat_zones;
+        document.getElementById('stat-today').textContent = d.data.today_detections;
+      }
+    } catch(e) {}
+  }
+  loadStats();
+  setInterval(loadStats, 5000);
+</script>
+</body>
+</html>
