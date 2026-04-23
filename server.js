@@ -32,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── In-Memory Data Store (remplacer par MongoDB en production) ────
+// ─── In-Memory Data Store (stockage en mémoire RAM) ────
 const dataStore = {
   alerts: [],
   detections: [],
